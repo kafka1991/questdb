@@ -294,10 +294,11 @@ public interface Function extends Closeable, StatefulAtom, Plannable, DeepClonea
                         continue;
                     }
 
-                    if (fType.isAssignableFrom(DeepCloneable.class)) {
-                        field.set(cloneFunc, ((DeepCloneable<?>) field.get(this)).deepClone());
+                    Object fValue = field.get(this);
+                    if (fValue instanceof DeepCloneable<?>) {
+                        field.set(cloneFunc, ((DeepCloneable<?>) fValue).deepClone());
                     } else {
-                        field.set(cloneFunc, field.get(this));
+                        field.set(cloneFunc, fValue);
                     }
                 }
                 cls = cls.getSuperclass();
