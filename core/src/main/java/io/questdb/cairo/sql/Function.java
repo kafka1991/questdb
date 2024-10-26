@@ -30,7 +30,6 @@ import io.questdb.griffin.PlanSink;
 import io.questdb.griffin.Plannable;
 import io.questdb.griffin.SqlException;
 import io.questdb.griffin.SqlExecutionContext;
-import io.questdb.griffin.engine.functions.GroupByFunction;
 import io.questdb.std.BinarySequence;
 import io.questdb.std.DeepCloneable;
 import io.questdb.std.Interval;
@@ -249,7 +248,7 @@ public interface Function extends Closeable, StatefulAtom, Plannable, DeepClonea
      * <p>
      * In case of non-aggregate functions this flag means read thread-safety.
      * For decomposable (think, parallel) aggregate functions
-     * ({@link GroupByFunction})
+     * ({@link io.questdb.griffin.engine.functions.GroupByFunction})
      * it means write thread-safety, i.e. whether it's safe to use single function
      * instance concurrently to aggregate across multiple threads.
      * <p>
@@ -279,7 +278,6 @@ public interface Function extends Closeable, StatefulAtom, Plannable, DeepClonea
             Constructor<?> funcCons = cls.getDeclaredConstructors()[0];
             funcCons.setAccessible(true);
             int parameterCount = funcCons.getParameterCount();
-            funcCons.setAccessible(true);
             Object[] pArgs = new Object[parameterCount];
             for (int i = 0; i < parameterCount; i++) {
                 pArgs[i] = DEFAULT_PRIMITIVE_VALUES.get(funcCons.getParameterTypes()[i]);
@@ -293,8 +291,6 @@ public interface Function extends Closeable, StatefulAtom, Plannable, DeepClonea
                     if (field.get(this) == null || Modifier.isStatic(field.getModifiers()) || (field.get(cloneFunc) != null && !fType.isPrimitive())) {
                         continue;
                     }
-
-
                     if (fType.isAssignableFrom(DeepCloneable.class)) {
                         field.set(cloneFunc, ((DeepCloneable<?>) field.get(this)).deepClone());
                     } else {
@@ -304,7 +300,7 @@ public interface Function extends Closeable, StatefulAtom, Plannable, DeepClonea
                 cls = cls.getSuperclass();
             }
             return (Function) cloneFunc;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new UnsupportedOperationException(e);
         }
     }
