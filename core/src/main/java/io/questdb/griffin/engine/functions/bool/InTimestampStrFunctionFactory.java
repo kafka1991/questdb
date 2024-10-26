@@ -97,6 +97,16 @@ public class InTimestampStrFunctionFactory implements FunctionFactory {
             }
             sink.val(" in ").val(intervals);
         }
+
+        @Override
+        public Function deepClone() {
+            return new EqTimestampStrConstantFunction(left.deepClone(), intervals);
+        }
+
+        private EqTimestampStrConstantFunction(Function left, LongList intervals) {
+            this.left = left;
+            this.intervals.add(intervals);
+        }
     }
 
     public static class EqTimestampStrFunction extends NegatableBooleanFunction implements BinaryFunction {

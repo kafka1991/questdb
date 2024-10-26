@@ -190,4 +190,15 @@ public final class CountDistinctUuidGroupByFunction extends LongFunction impleme
     public void toTop() {
         UnaryFunction.super.toTop();
     }
+
+    @Override
+    public Function deepClone() {
+        return new CountDistinctUuidGroupByFunction(arg.deepClone(), new GroupByLong128HashSet(setA), new GroupByLong128HashSet(setB));
+    }
+
+    private CountDistinctUuidGroupByFunction(Function arg, GroupByLong128HashSet setA, GroupByLong128HashSet setB) {
+        this.arg = arg;
+        this.setA = setA;
+        this.setB = setB;
+    }
 }

@@ -30,7 +30,9 @@ import io.questdb.griffin.PlanSink;
 import io.questdb.griffin.Plannable;
 import io.questdb.griffin.SqlException;
 import io.questdb.griffin.SqlExecutionContext;
+import io.questdb.griffin.engine.functions.GroupByFunction;
 import io.questdb.std.BinarySequence;
+import io.questdb.std.DeepCloneable;
 import io.questdb.std.Interval;
 import io.questdb.std.Long256;
 import io.questdb.std.ObjList;
@@ -40,8 +42,19 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
+import java.util.Map;
 
-public interface Function extends Closeable, StatefulAtom, Plannable {
+
+public interface Function extends Closeable, StatefulAtom, Plannable, DeepCloneable<Function> {
+
+    Map<Class<?>, Object> DEFAULT_PRIMITIVE_VALUES = Map.of(
+            boolean.class, false, byte.class, (byte) 0, short.class, (short) 0, char.class,
+            (char) 0, double.class, (double) 0, float.class, (float) 0,
+            int.class, (int) 0, long.class, (long) 0
+    );
 
     static void init(
             ObjList<? extends Function> args,
@@ -236,7 +249,7 @@ public interface Function extends Closeable, StatefulAtom, Plannable {
      * <p>
      * In case of non-aggregate functions this flag means read thread-safety.
      * For decomposable (think, parallel) aggregate functions
-     * ({@link io.questdb.griffin.engine.functions.GroupByFunction})
+     * ({@link GroupByFunction})
      * it means write thread-safety, i.e. whether it's safe to use single function
      * instance concurrently to aggregate across multiple threads.
      * <p>
@@ -250,6 +263,50 @@ public interface Function extends Closeable, StatefulAtom, Plannable {
 
     default boolean isUndefined() {
         return getType() == ColumnType.UNDEFINED;
+    }
+
+    /**
+     * DeepClone does not clone the running-states, only the init states of the function,
+     * must be called before Function::init.
+     * Used for parallel filter/groupBy execution, so that avoid Function::parser for every worker.
+     * Note: CursorFunction and WindowFunction are not supported now.
+     *
+     * @return deep clones of the function
+     */
+    default Function deepClone() {
+        try {
+            Class<?> cls = this.getClass();
+            Constructor<?> funcCons = cls.getDeclaredConstructors()[0];
+            funcCons.setAccessible(true);
+            int parameterCount = funcCons.getParameterCount();
+            funcCons.setAccessible(true);
+            Object[] pArgs = new Object[parameterCount];
+            for (int i = 0; i < parameterCount; i++) {
+                pArgs[i] = DEFAULT_PRIMITIVE_VALUES.get(funcCons.getParameterTypes()[i]);
+            }
+            Object cloneFunc = funcCons.newInstance(pArgs);
+
+            while (cls != null) {
+                for (Field field : cls.getDeclaredFields()) {
+                    Class<?> fType = field.getType();
+                    field.setAccessible(true);
+                    if (field.get(this) == null || Modifier.isStatic(field.getModifiers()) || (field.get(cloneFunc) != null && !fType.isPrimitive())) {
+                        continue;
+                    }
+
+
+                    if (fType.isAssignableFrom(DeepCloneable.class)) {
+                        field.set(cloneFunc, ((DeepCloneable<?>) field.get(this)).deepClone());
+                    } else {
+                        field.set(cloneFunc, field.get(this));
+                    }
+                }
+                cls = cls.getSuperclass();
+            }
+            return (Function) cloneFunc;
+        } catch (Exception e) {
+            throw new UnsupportedOperationException(e);
+        }
     }
 
     /**

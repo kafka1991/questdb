@@ -188,4 +188,15 @@ public class CountDistinctIPv4GroupByFunction extends LongFunction implements Un
     public void toTop() {
         UnaryFunction.super.toTop();
     }
+
+    @Override
+    public Function deepClone() {
+        return new CountDistinctIPv4GroupByFunction(arg.deepClone(), new GroupByIntHashSet(setA), new GroupByIntHashSet(setB));
+    }
+
+    private CountDistinctIPv4GroupByFunction(Function arg, GroupByIntHashSet setA, GroupByIntHashSet setB) {
+        this.arg = arg;
+        this.setA = setA;
+        this.setB = setB;
+    }
 }

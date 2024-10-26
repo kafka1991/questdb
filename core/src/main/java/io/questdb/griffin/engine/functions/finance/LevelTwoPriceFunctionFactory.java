@@ -169,6 +169,11 @@ public class LevelTwoPriceFunctionFactory implements FunctionFactory {
             }
             return Double.NaN;
         }
+
+        @Override
+        public Function deepClone() {
+            return new L2PriceFunction2(args.deepClone(), argPositions.deepClone());
+        }
     }
 
     /**
@@ -207,6 +212,11 @@ public class LevelTwoPriceFunctionFactory implements FunctionFactory {
                 return ((size0 * value0) + (target - size0) * value1) / target;
             }
             return Double.NaN;
+        }
+
+        @Override
+        public Function deepClone() {
+            return new L2PriceFunction3(args.deepClone(), argPositions.deepClone());
         }
     }
 
@@ -257,6 +267,11 @@ public class LevelTwoPriceFunctionFactory implements FunctionFactory {
                 return ((size0 * value0) + (size1 * value1) + (target - size0 - size1) * value2) / target;
             }
             return Double.NaN;
+        }
+
+        @Override
+        public Function deepClone() {
+            return new L2PriceFunction4(args.deepClone(), argPositions.deepClone());
         }
     }
 
@@ -318,6 +333,11 @@ public class LevelTwoPriceFunctionFactory implements FunctionFactory {
                 return ((size0 * value0) + (size1 * value1) + (size2 * value2) + (target - size0 - size1 - size2) * value3) / target;
             }
             return Double.NaN;
+        }
+
+        @Override
+        public Function deepClone() {
+            return new L2PriceFunction5(args.deepClone(), argPositions.deepClone());
         }
     }
 
@@ -392,6 +412,11 @@ public class LevelTwoPriceFunctionFactory implements FunctionFactory {
                         + (target - size0 - size1 - size2 - size3) * value4) / target;
             }
             return Double.NaN;
+        }
+
+        @Override
+        public Function deepClone() {
+            return new L2PriceFunction5(args.deepClone(), argPositions.deepClone());
         }
     }
 

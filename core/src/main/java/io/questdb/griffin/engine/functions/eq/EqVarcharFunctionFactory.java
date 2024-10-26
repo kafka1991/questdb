@@ -116,6 +116,11 @@ public class EqVarcharFunctionFactory implements FunctionFactory {
             }
             sink.val("='").val(constant).val('\'');
         }
+
+        @Override
+        public Function deepClone() {
+            return new ConstCheckFunc(arg.deepClone(), constant);
+        }
     }
 
     static class Func extends AbstractEqBinaryFunction {

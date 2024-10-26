@@ -220,4 +220,15 @@ public class CountDistinctSymbolGroupByFunction extends LongFunction implements 
     public void toTop() {
         UnaryFunction.super.toTop();
     }
+
+    @Override
+    public Function deepClone() {
+        return new CountDistinctSymbolGroupByFunction(arg.deepClone(), new GroupByIntHashSet(setA), new GroupByIntHashSet(setB));
+    }
+
+    private CountDistinctSymbolGroupByFunction(Function arg, GroupByIntHashSet setA, GroupByIntHashSet setB) {
+        this.arg = arg;
+        this.setA = setA;
+        this.setB = setB;
+    }
 }

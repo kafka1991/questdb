@@ -182,4 +182,15 @@ public class CountDistinctIntGroupByFunction extends LongFunction implements Una
     public boolean supportsParallelism() {
         return UnaryFunction.super.supportsParallelism();
     }
+
+    @Override
+    public Function deepClone() {
+        return new CountDistinctIntGroupByFunction(arg.deepClone(), new GroupByIntHashSet(setA), new GroupByIntHashSet(setB));
+    }
+
+    private CountDistinctIntGroupByFunction(Function arg, GroupByIntHashSet setA, GroupByIntHashSet setB) {
+        this.arg = arg;
+        this.setA = setA;
+        this.setB = setB;
+    }
 }

@@ -169,4 +169,9 @@ public class CountDistinctStringGroupByFunction extends LongFunction implements 
         UnaryFunction.super.toTop();
         setIndex = 0;
     }
+
+    @Override
+    public Function deepClone() {
+        return new CountDistinctStringGroupByFunction(arg.deepClone(), setInitialCapacity, setLoadFactor);
+    }
 }

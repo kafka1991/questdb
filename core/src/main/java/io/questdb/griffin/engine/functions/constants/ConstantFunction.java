@@ -36,4 +36,9 @@ public interface ConstantFunction extends Function {
     default boolean isThreadSafe() {
         return true;
     }
+
+    @Override
+    default Function deepClone() {
+        return this;
+    }
 }

@@ -22,45 +22,8 @@
  *
  ******************************************************************************/
 
-package io.questdb.griffin.engine.functions.bind;
+package io.questdb.std;
 
-import io.questdb.cairo.sql.Function;
-import io.questdb.cairo.sql.Record;
-import io.questdb.cairo.sql.ScalarFunction;
-import io.questdb.griffin.PlanSink;
-import io.questdb.griffin.engine.functions.DoubleFunction;
-import io.questdb.std.Mutable;
-
-class DoubleBindVariable extends DoubleFunction implements ScalarFunction, Mutable {
-    double value;
-
-    @Override
-    public void clear() {
-        value = Double.NaN;
-    }
-
-    @Override
-    public double getDouble(Record rec) {
-        return value;
-    }
-
-    @Override
-    public boolean isThreadSafe() {
-        return true;
-    }
-
-    @Override
-    public boolean isRuntimeConstant() {
-        return true;
-    }
-
-    @Override
-    public void toPlan(PlanSink sink) {
-        sink.val("?::double");
-    }
-
-    @Override
-    public Function deepClone() {
-        return this;
-    }
+public interface DeepCloneable<T> {
+    T deepClone();
 }

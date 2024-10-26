@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class ObjList<T> implements Mutable, Sinkable, ReadOnlyObjList<T> {
+public class ObjList<T> implements Mutable, Sinkable, ReadOnlyObjList<T>, DeepCloneable<ObjList<T>> {
     private static final int DEFAULT_ARRAY_SIZE = 16;
     private T[] buffer;
     private int pos = 0;
@@ -110,6 +110,18 @@ public class ObjList<T> implements Mutable, Sinkable, ReadOnlyObjList<T> {
         }
 
         return false;
+    }
+
+    @Override
+    public ObjList<T> deepClone() {
+        if (buffer.getClass().getComponentType().isAssignableFrom(DeepCloneable.class)) {
+            ObjList<T> clone = new ObjList<>();
+            for (int i = 0; i < pos; i++) {
+                clone.add(((DeepCloneable<T>) this.get(i)).deepClone());
+            }
+            return clone;
+        }
+        return new ObjList<>(this);
     }
 
     /**
