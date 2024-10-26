@@ -44,16 +44,22 @@ import java.io.Closeable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.util.HashMap;
 import java.util.Map;
 
 
 public interface Function extends Closeable, StatefulAtom, Plannable, DeepCloneable<Function> {
 
-    Map<Class<?>, Object> DEFAULT_PRIMITIVE_VALUES = Map.of(
-            boolean.class, false, char.class,
-            (char) 0, double.class, (double) 0, float.class, (float) 0, byte.class, (byte) 0,
-            short.class, (short) 0, int.class, 0, long.class, (long) 0
-    );
+    Map<Class<?>, Object> DEFAULT_PRIMITIVE_VALUES = new HashMap<>() {{
+        put(boolean.class, false);
+        put(char.class, (char) 0);
+        put(double.class, (double) 0);
+        put(float.class, (float) 0);
+        put(byte.class, (byte) 0);
+        put(short.class, (short) 0);
+        put(int.class, 0);
+        put(long.class, (long) 0);
+    }};
 
     static void init(
             ObjList<? extends Function> args,
