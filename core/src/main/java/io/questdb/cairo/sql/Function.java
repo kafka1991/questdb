@@ -50,9 +50,9 @@ import java.util.Map;
 public interface Function extends Closeable, StatefulAtom, Plannable, DeepCloneable<Function> {
 
     Map<Class<?>, Object> DEFAULT_PRIMITIVE_VALUES = Map.of(
-            boolean.class, false, byte.class, (byte) 0, short.class, (short) 0, char.class,
-            (char) 0, double.class, (double) 0, float.class, (float) 0,
-            int.class, (int) 0, long.class, (long) 0
+            boolean.class, false, char.class,
+            (char) 0, double.class, (double) 0, float.class, (float) 0, byte.class, (byte) 0,
+            short.class, (short) 0, int.class, 0, long.class, (long) 0
     );
 
     static void init(
