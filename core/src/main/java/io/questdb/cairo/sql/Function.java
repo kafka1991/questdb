@@ -41,25 +41,21 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
 
 
 public interface Function extends Closeable, StatefulAtom, Plannable, DeepCloneable<Function> {
 
-    Map<Class<?>, Object> DEFAULT_PRIMITIVE_VALUES = new HashMap<>() {{
-        put(boolean.class, false);
-        put(char.class, (char) 0);
-        put(double.class, (double) 0);
-        put(float.class, (float) 0);
-        put(byte.class, (byte) 0);
-        put(short.class, (short) 0);
-        put(int.class, 0);
-        put(long.class, (long) 0);
-    }};
+    Map<Class<?>, Object> DEFAULT_PRIMITIVE_VALUES = Stream
+            .of(boolean.class, byte.class, char.class, double.class, float.class, int.class, long.class, short.class)
+            .collect(toMap(clazz -> (Class<?>) clazz, clazz -> Array.get(Array.newInstance(clazz, 1), 0)));
 
     static void init(
             ObjList<? extends Function> args,
@@ -297,6 +293,7 @@ public interface Function extends Closeable, StatefulAtom, Plannable, DeepClonea
                     if (field.get(this) == null || Modifier.isStatic(field.getModifiers()) || (field.get(cloneFunc) != null && !fType.isPrimitive())) {
                         continue;
                     }
+
                     if (fType.isAssignableFrom(DeepCloneable.class)) {
                         field.set(cloneFunc, ((DeepCloneable<?>) field.get(this)).deepClone());
                     } else {
@@ -306,7 +303,7 @@ public interface Function extends Closeable, StatefulAtom, Plannable, DeepClonea
                 cls = cls.getSuperclass();
             }
             return (Function) cloneFunc;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new UnsupportedOperationException(e);
         }
     }
