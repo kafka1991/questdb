@@ -172,5 +172,10 @@ public class SubStringFunctionFactory implements FunctionFactory {
             sink.put(str, start, end);
             return sink;
         }
+
+        @Override
+        public Function deepClone() {
+            return new SubStringFunc(strFunc.deepClone(), startFunc.deepClone(), lenFunc.deepClone());
+        }
     }
 }

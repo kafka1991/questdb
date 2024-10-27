@@ -304,7 +304,7 @@ public interface Function extends Closeable, StatefulAtom, Plannable, DeepClonea
                 cls = cls.getSuperclass();
             }
             return (Function) cloneFunc;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new UnsupportedOperationException(e);
         }
     }
